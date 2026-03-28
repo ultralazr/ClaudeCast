@@ -1,6 +1,7 @@
 {
   "workerUrl": "",
   "bucketName": "",
+  "prefix": "",
   "podcastTitle": "ClaudeCast",
   "podcastAuthor": "",
   "podcastDescription": "AI-assisted development podcast"

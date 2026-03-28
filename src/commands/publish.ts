@@ -49,7 +49,9 @@ export async function publishCommand(opts: PublishOptions): Promise<void> {
   const publishedEps = []
   for (const ep of toPublish) {
     const epKey = `ep${String(ep.number).padStart(2, '0')}`
-    const r2Key = `episodes/${epKey}.m4a`
+    const r2Key = cfg.prefix
+      ? `${cfg.prefix.replace(/\/$/, '')}/episodes/${epKey}.m4a`
+      : `episodes/${epKey}.m4a`
     const absPath = resolve(ROOT, ep.podcastFile)
     console.log(`  → ${epKey}: uploading...`)
     await r2Upload(absPath, r2Key, cfg.bucketName, opts.dryRun)
@@ -80,7 +82,9 @@ export async function publishCommand(opts: PublishOptions): Promise<void> {
   const feedEps = opts.dryRun ? publishedAll : publishedAll
   console.log(`  → feed.xml: generating (${feedEps.length} episode${feedEps.length !== 1 ? 's' : ''})...`)
   const feedXml = generateFeed(feedEps, cfg)
-  await r2UploadString(feedXml, 'feed.xml', cfg.bucketName, opts.dryRun)
+  const feedKey = cfg.prefix ? `${cfg.prefix.replace(/\/$/, '')}/feed.xml` : 'feed.xml'
+  await r2UploadString(feedXml, feedKey, cfg.bucketName, opts.dryRun)
 
-  console.log(`\nDone. Feed URL: ${cfg.workerUrl}/feed.xml`)
+  const feedUrl = `${cfg.workerUrl.replace(/\/$/, '')}/${feedKey}`
+  console.log(`\nDone. Feed URL: ${feedUrl}`)
 }

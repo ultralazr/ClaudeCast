@@ -15,6 +15,7 @@ export interface PublisherPodcastMeta {
 export interface PublisherConfig {
   workerUrl: string
   bucketName: string
+  prefix?: string  // optional R2 path prefix, e.g. "test" → keys become test/feed.xml, test/episodes/ep01.m4a
   podcast: PublisherPodcastMeta
 }
 

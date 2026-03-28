@@ -7,12 +7,16 @@ import type { PublisherConfig } from './config.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../..')
 
-function episodeR2Key(num: number): string {
-  return `episodes/ep${String(num).padStart(2, '0')}.m4a`
+function withPrefix(prefix: string | undefined, key: string): string {
+  return prefix ? `${prefix.replace(/\/$/, '')}/${key}` : key
 }
 
-function episodeUrl(workerUrl: string, num: number): string {
-  return `${workerUrl.replace(/\/$/, '')}/${episodeR2Key(num)}`
+function episodeR2Key(num: number, prefix?: string): string {
+  return withPrefix(prefix, `episodes/ep${String(num).padStart(2, '0')}.m4a`)
+}
+
+function episodeUrl(workerUrl: string, num: number, prefix?: string): string {
+  return `${workerUrl.replace(/\/$/, '')}/${episodeR2Key(num, prefix)}`
 }
 
 function episodeTitle(ep: EpisodeRecord): string {
@@ -46,7 +50,7 @@ export function generateFeed(
   const sorted = [...episodes].sort((a, b) => a.number - b.number)
 
   const items = sorted.map((ep) => {
-    const url = episodeUrl(cfg.workerUrl, ep.number)
+    const url = episodeUrl(cfg.workerUrl, ep.number, cfg.prefix)
     const size = audioFileSize(ep.podcastFile)
     return `
   <item>
@@ -61,7 +65,7 @@ export function generateFeed(
   </item>`
   }).join('\n')
 
-  const feedUrl = `${cfg.workerUrl.replace(/\/$/, '')}/feed.xml`
+  const feedUrl = `${cfg.workerUrl.replace(/\/$/, '')}/${withPrefix(cfg.prefix, 'feed.xml')}`
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"
