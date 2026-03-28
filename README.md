@@ -1,0 +1,117 @@
+# ClaudeCast
+
+![ClaudeCast](publisher/cover-promo.png)
+
+Automatically generates a weekly developer podcast from your Claude Code session logs. Each week's coding sessions are summarized per project by NotebookLM, then combined into a single audio episode — your personal AI-assisted dev podcast.
+
+## How it works
+
+1. **Extract** — reads raw Claude Code session files from `~/.claude/`
+2. **Redact** — strips personal data using configurable rules
+3. **Summarize** — uploads session content to NotebookLM, queries for per-project summaries
+4. **Podcast** — NotebookLM generates a Deep Dive audio episode
+5. **Post-process** — adds intro/outro music and optional talker overlay
+6. **Publish** — uploads to Cloudflare R2, regenerates RSS feed
+
+## Prerequisites
+
+- **Node.js** 20+
+- **Python** 3.9+ with `notebooklm-tools` installed:
+  ```bash
+  pip install notebooklm-tools
+  ```
+- **ffmpeg** — install and add to PATH, or on Windows:
+  ```bash
+  winget install Gyan.FFmpeg
+  ```
+- **NotebookLM account** — authenticate with:
+  ```bash
+  nlm login
+  ```
+- **Cloudflare account** *(optional, for publishing)* — R2 bucket + Worker
+
+## Installation
+
+```bash
+git clone https://github.com/ultralazr/ClaudeCast.git
+cd ClaudeCast
+npm install        # auto-builds TypeScript via prepare script
+devlog init        # interactive setup wizard
+```
+
+`devlog init` will:
+- Ask for your Claude data directory (default: `~/.claude`)
+- Optionally configure Cloudflare publishing
+- Create `config/projects.json` and `publisher/config.json`
+- Copy starter redaction config files
+- Check that all prerequisites are reachable
+
+## Audio wrappers
+
+Place your audio files in `data/audio_wrappers/` with these exact names:
+
+| File | Role |
+|------|------|
+| `music.wav` | Intro/outro background music (any length ≥ 30s) |
+| `talker.mp3` | Optional voice overlay that plays over the intro music |
+
+The post-processing adds a 23-second music intro, crossfades into the NLM audio, and fades back out to music for the outro. If you don't have a talker file, you can adjust `src/nlm/post-process.ts` to skip the talker track.
+
+## Redaction
+
+Two config files control what gets redacted from session logs before they reach NotebookLM:
+
+**`config/redact.csv`** — term substitution (copy from `config/redact.example.csv`):
+```csv
+term,replacement,case_sensitive
+Acme Corp,Example Inc.,false
+john.doe,demo-user-1,false
+```
+
+**`config/redact-patterns.csv`** — regex patterns (copy from `config/redact-patterns.example.csv`):
+```csv
+pattern,replacement,flags
+[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,},[email],gi
+```
+
+Both files are gitignored — your redaction rules stay private.
+
+## Podcast prompt customization
+
+The NLM prompt that generates your podcast is in `config/stage2-prompt.txt`. Edit it to change the podcast style, host persona, or how projects are described. The prompt references the developer by name — update it to match your own handle.
+
+## Commands
+
+```bash
+devlog init                   # First-time setup
+devlog episode                # Process current episode (since last run)
+devlog episode --dry-run      # Show what would be processed without calling NLM
+devlog backfill               # Process all historical episodes
+devlog backfill --limit 1     # Process only the oldest unprocessed episode
+devlog publish                # Upload new episodes to Cloudflare R2 + regenerate RSS
+devlog config add-project <path> <name>   # Map a project directory to a friendly name
+devlog config list-projects               # List configured project mappings
+```
+
+## Project mappings
+
+ClaudeCast groups sessions by the `cwd` recorded in Claude Code session files. Without mappings the folder names are used as-is (functional but ugly). Add friendly names:
+
+```bash
+devlog config add-project "/Users/you/projects/my-app" "my-app"
+```
+
+## Data directory layout
+
+```
+data/
+  audio_wrappers/   # Your music and talker files (gitignored)
+  episodes/         # Generated per-episode summaries and podcast files (gitignored)
+  logs/             # Processed session markdown (gitignored)
+  state/            # episodes.json tracking state (gitignored)
+config/
+  projects.json          # Your personal config (gitignored)
+  redact.csv             # Your redaction terms (gitignored)
+  redact-patterns.csv    # Your regex patterns (gitignored)
+  stage2-prompt.txt      # NLM podcast prompt (committed, customize freely)
+```

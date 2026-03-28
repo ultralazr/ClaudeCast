@@ -1,0 +1,5 @@
+pattern,replacement,flags
+[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,},[email],gi
+\b[A-HJ-NPR-Z0-9]{17}\b,[VIN],g
+\bCONFIG\d{6,}\b,[CONFIG-ID],g
+C:\\Users\\[^\\]+\\,C:\\Users\\[user]\\,g

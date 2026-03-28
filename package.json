@@ -1,0 +1,28 @@
+{
+  "name": "dev-log",
+  "version": "0.1.0",
+  "description": "Automated dev log builder for Claude Code sessions",
+  "type": "module",
+  "bin": {
+    "devlog": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "tsc",
+    "dev": "node --import tsx/esm src/cli.ts",
+    "start": "node dist/cli.js"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.4.0",
+    "commander": "^12.1.0",
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^3.2.0",
+    "execa": "^9.5.2",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}

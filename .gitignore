@@ -1,0 +1,24 @@
+# Personal config (copy from .example and fill in your values)
+config/projects.json
+config/redact.csv
+config/redact-patterns.csv
+publisher/config.json
+
+# Generated data (personal to each user)
+data/episodes/*
+data/logs/*
+data/state/*
+data/audio_wrappers/*
+
+# Keep directory stubs
+!data/episodes/.gitkeep
+!data/logs/.gitkeep
+!data/state/.gitkeep
+!data/audio_wrappers/.gitkeep
+
+# Build output
+dist/
+node_modules/
+
+# Cloudflare Wrangler state
+publisher/.wrangler/
