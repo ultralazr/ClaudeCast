@@ -49,14 +49,16 @@ devlog init        # interactive setup wizard
 
 ## Audio wrappers
 
-Place your audio files in `data/audio_wrappers/` with these exact names:
+Default intro/outro music and a talker overlay are included in `assets/audio/`. They're used automatically — no setup needed.
+
+To use your own files, place them in `data/audio_wrappers/` with these exact names (they take priority over the defaults):
 
 | File | Role |
 |------|------|
 | `music.wav` | Intro/outro background music (any length ≥ 30s) |
 | `talker.mp3` | Optional voice overlay that plays over the intro music |
 
-The post-processing adds a 23-second music intro, crossfades into the NLM audio, and fades back out to music for the outro. If you don't have a talker file, you can adjust `src/nlm/post-process.ts` to skip the talker track.
+The post-processing adds a 23-second music intro, crossfades into the NLM audio, and fades back out to music for the outro.
 
 ## Redaction
 

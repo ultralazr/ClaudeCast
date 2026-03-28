@@ -40,9 +40,10 @@ export async function episodeCommand(options: {
 
   if (options.sessions) {
     console.log(`Processing specific sessions: ${options.sessions.join(', ')}`)
-  } else if (windowStart) {
+  }
+  if (windowStart) {
     console.log(`Processing sessions since: ${windowStart.toISOString()}`)
-  } else {
+  } else if (!options.sessions) {
     console.log('No previous run found — processing all sessions up to now.')
   }
   if (options.to) console.log(`Window end: ${windowEnd.toISOString()}`)
@@ -52,7 +53,7 @@ export async function episodeCommand(options: {
 
   const candidateSessions = allSessions.filter(s => {
     if (isExcluded(s.sessionId, excludedPrefixes)) return false
-    if (options.sessions) return options.sessions.some(p => s.sessionId.startsWith(p))
+    if (options.sessions && !options.sessions.some(p => s.sessionId.startsWith(p))) return false
     return true
   })
 

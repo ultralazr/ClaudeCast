@@ -14,7 +14,6 @@ const EXCLUDE_FILE = resolve(ROOT, 'config/exclude-sessions.txt')
 const REDACT_EXAMPLE = resolve(ROOT, 'config/redact.example.csv')
 const PATTERNS_EXAMPLE = resolve(ROOT, 'config/redact-patterns.example.csv')
 const EXCLUDE_EXAMPLE = resolve(ROOT, 'config/exclude-sessions.example.txt')
-const AUDIO_WRAPPERS_DIR = resolve(ROOT, 'data/audio_wrappers')
 
 function defaultClaudeDir(): string {
   const home = process.env['USERPROFILE'] ?? process.env['HOME'] ?? ''
@@ -51,12 +50,6 @@ async function checkNotebooklmTools(): Promise<boolean> {
   }
 }
 
-function checkAudioWrappers(): { music: boolean; talker: boolean } {
-  return {
-    music: existsSync(resolve(AUDIO_WRAPPERS_DIR, 'music.wav')),
-    talker: existsSync(resolve(AUDIO_WRAPPERS_DIR, 'talker.mp3')),
-  }
-}
 
 export async function initCommand(): Promise<void> {
   console.log('ClaudeCast Setup\n')
@@ -145,16 +138,12 @@ export async function initCommand(): Promise<void> {
     ? '  ✓ notebooklm-tools found'
     : '  ✗ notebooklm-tools not found — run: pip install notebooklm-tools')
 
-  const { music, talker } = checkAudioWrappers()
-  console.log(music
-    ? '  ✓ data/audio_wrappers/music.wav found'
-    : '  ✗ data/audio_wrappers/music.wav not found — add your intro music file')
-  console.log(talker
-    ? '  ✓ data/audio_wrappers/talker.mp3 found'
-    : '  ✗ data/audio_wrappers/talker.mp3 not found — add your talker overlay file')
+  console.log('  ✓ audio wrappers: defaults shipped in assets/audio/ (override in data/audio_wrappers/)')
+
+  console.log('\nNext steps:')
+  console.log('  • Edit config/redact.csv and config/redact-patterns.csv to redact your personal data')
+  console.log('  • Edit config/stage2-prompt.txt to customise your podcast style and host persona')
+  console.log('  • Add project mappings: devlog config add-project <path> <name>')
 
   console.log('\nSetup complete.')
-  if (Object.keys(projectsConfig.projectMappings).length === 0) {
-    console.log('Tip: map your project paths with: devlog config add-project <path> <name>')
-  }
 }

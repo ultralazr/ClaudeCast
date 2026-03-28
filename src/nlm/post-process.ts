@@ -18,9 +18,20 @@ import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const WRAPPERS_DIR = resolve(__dirname, '../../data/audio_wrappers')
+const ASSETS_DIR = resolve(__dirname, '../../assets/audio')
 
-const MUSIC_FILE = join(WRAPPERS_DIR, 'music.wav')
-const TALKER_FILE = join(WRAPPERS_DIR, 'talker.mp3')
+function resolveAudioFile(name: string): string | null {
+  const userFile = join(WRAPPERS_DIR, name)
+  if (existsSync(userFile)) return userFile
+  // Try alternate extension for music (user may supply .wav, default ships as .mp3)
+  if (name === 'music.wav') {
+    const defaultMp3 = join(ASSETS_DIR, 'music.mp3')
+    if (existsSync(defaultMp3)) return defaultMp3
+  }
+  const defaultFile = join(ASSETS_DIR, name)
+  if (existsSync(defaultFile)) return defaultFile
+  return null
+}
 
 // Common Windows install locations for ffmpeg (tried in order if not in PATH)
 const FFMPEG_WINDOWS_CANDIDATES = [
@@ -94,11 +105,11 @@ async function getBitrate(file: string): Promise<number> {
 export async function postProcess(rawFile: string, outFile: string): Promise<void> {
   if (!existsSync(rawFile)) throw new Error(`Input file not found: ${rawFile}`)
 
-  const hasMusic = existsSync(MUSIC_FILE)
-  const hasTalker = existsSync(TALKER_FILE)
+  const musicFile = resolveAudioFile('music.wav')
+  const talkerFile = resolveAudioFile('talker.mp3')
 
-  if (!hasMusic) {
-    console.log('  Warning: music.wav not found — skipping post-processing, using raw NLM audio.')
+  if (!musicFile) {
+    console.log('  Warning: no music file found — skipping post-processing, using raw NLM audio.')
     if (rawFile !== outFile) {
       const { copyFileSync } = await import('fs')
       copyFileSync(rawFile, outFile)
@@ -106,16 +117,15 @@ export async function postProcess(rawFile: string, outFile: string): Promise<voi
     return
   }
 
-  if (!hasTalker) {
+  if (!talkerFile) {
     console.log('  Note: talker.mp3 not found — skipping talker overlay.')
   }
 
   console.log('  Post-processing audio...')
 
-  const filesToProbe = [rawFile, MUSIC_FILE]
   const [nlmDuration, musicDuration, inputBitrate] = await Promise.all([
     getDuration(rawFile),
-    getDuration(MUSIC_FILE),
+    getDuration(musicFile),
     getBitrate(rawFile),
   ])
 
@@ -134,11 +144,11 @@ export async function postProcess(rawFile: string, outFile: string): Promise<voi
   ]
 
   let lastLabel = 'with_music'
-  const inputs: string[] = [rawFile, MUSIC_FILE]
+  const inputs: string[] = [rawFile, musicFile]
 
-  if (hasTalker) {
+  if (talkerFile) {
     const talkerIdx = inputs.length
-    inputs.push(TALKER_FILE)
+    inputs.push(talkerFile)
     filterParts.push(`[${talkerIdx}:a]adelay=9000:all=1,volume=1.8[talker]`)
     filterParts.push(`[with_music][talker]amix=inputs=2:duration=first:dropout_transition=2[mixed]`)
     lastLabel = 'mixed'
