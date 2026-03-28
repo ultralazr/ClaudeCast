@@ -36,6 +36,7 @@ Automatically generates a weekly developer podcast from your Claude Code session
 git clone https://github.com/ultralazr/ClaudeCast.git
 cd ClaudeCast
 npm install        # auto-builds TypeScript via prepare script
+npm install -g .   # installs the devlog command globally
 devlog init        # interactive setup wizard
 ```
 
