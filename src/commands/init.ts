@@ -78,6 +78,7 @@ export async function initCommand(): Promise<void> {
 
   let workerUrl = ''
   let bucketName = ''
+  let prefix = ''
   let podcastTitle = 'ClaudeCast'
   let podcastAuthor = ''
   let podcastDescription = 'AI-assisted development podcast'
@@ -85,6 +86,10 @@ export async function initCommand(): Promise<void> {
   if (wantPublisher) {
     workerUrl = await input({ message: 'Cloudflare Worker URL:', default: '' })
     bucketName = await input({ message: 'R2 bucket name:', default: '' })
+    prefix = await input({
+      message: 'R2 path prefix (optional, e.g. "test" to isolate from your main feed):',
+      default: '',
+    })
     podcastTitle = await input({ message: 'Podcast title:', default: 'ClaudeCast' })
     podcastAuthor = await input({ message: 'Podcast author name:', default: '' })
     podcastDescription = await input({
@@ -103,7 +108,7 @@ export async function initCommand(): Promise<void> {
   writeFileSync(CONFIG_PATH, JSON.stringify(projectsConfig, null, 2), 'utf-8')
   console.log(`\n✓ Wrote ${CONFIG_PATH}`)
 
-  const publisherConfig = { workerUrl, bucketName, podcastTitle, podcastAuthor, podcastDescription }
+  const publisherConfig = { workerUrl, bucketName, ...(prefix ? { prefix } : {}), podcastTitle, podcastAuthor, podcastDescription }
   writeFileSync(PUBLISHER_CONFIG_PATH, JSON.stringify(publisherConfig, null, 2), 'utf-8')
   console.log(`✓ Wrote ${PUBLISHER_CONFIG_PATH}`)
 
