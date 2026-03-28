@@ -11,12 +11,20 @@ from notebooklm_tools.core.client import NotebookLMClient
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: nlm_source_add.py <notebook_id> <text> [title]", file=sys.stderr)
+        print("Usage: nlm_source_add.py <notebook_id> <text_or_file> [title]", file=sys.stderr)
         sys.exit(1)
 
     notebook_id = sys.argv[1]
-    text = sys.argv[2]
+    text_or_file = sys.argv[2]
     title = sys.argv[3] if len(sys.argv) > 3 else "Source"
+
+    # If argument looks like a file path and file exists, read from it
+    import os
+    if os.path.isfile(text_or_file):
+        with open(text_or_file, 'r', encoding='utf-8') as f:
+            text = f.read()
+    else:
+        text = text_or_file
 
     cached = load_cached_tokens()
     if not cached:

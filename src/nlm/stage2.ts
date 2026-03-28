@@ -5,7 +5,7 @@
  * .m4a, queries for tagline + recap, then deletes the notebook.
  */
 import { execa } from 'execa'
-import { readFileSync, existsSync, statSync, mkdirSync, writeFileSync } from 'fs'
+import { readFileSync, existsSync, statSync, mkdirSync, writeFileSync, unlinkSync } from 'fs'
 import { join, dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import type { Stage1Result } from './stage1.js'
@@ -100,14 +100,28 @@ export async function runStage2(
   const yyyy = now.getFullYear()
   const projectPart = results.map(r => r.project).join('_')
   const podcastFile = join(episodeDir, `ClaudeCast_ep${episodePadded}_${dd}_${mm}_${yyyy}_${projectPart}.m4a`)
+  const rawFile = podcastFile.replace(/\.m4a$/, '_raw.m4a')
 
-  // Skip if already downloaded
+  // Skip entirely if post-processed file already exists
   if (existsSync(podcastFile) && statSync(podcastFile).size > 0) {
     console.log(`  Podcast already exists: ${podcastFile}`)
     const tagline = existsSync(join(episodeDir, 'tagline.txt'))
       ? readFileSync(join(episodeDir, 'tagline.txt'), 'utf-8').trim()
       : ''
     return { podcastFile, tagline }
+  }
+
+  // Resume from post-processing if raw file already downloaded
+  if (existsSync(rawFile) && statSync(rawFile).size > 0) {
+    console.log(`  Raw audio exists, resuming post-processing...`)
+    await postProcess(rawFile, podcastFile)
+    unlinkSync(rawFile)
+    return {
+      podcastFile,
+      tagline: existsSync(join(episodeDir, 'tagline.txt'))
+        ? readFileSync(join(episodeDir, 'tagline.txt'), 'utf-8').trim()
+        : '',
+    }
   }
 
   const notebookTitle = `ClaudeCast - Episode ${episodeNumber}`
@@ -191,11 +205,12 @@ export async function runStage2(
     console.warn('  Warning: could not generate recap')
   }
 
-  // Poll until complete — retry on transient 502/network errors
+  // Poll until complete — first check after 60s, then every 60s
+  const POLL_INTERVAL_MS = 60_000
+  const maxAttempts = 30 // 30 minutes max
+  await sleep(POLL_INTERVAL_MS)
   let attempts = 0
-  const maxAttempts = 180 // 30 minutes max
   while (attempts < maxAttempts) {
-    await sleep(10_000)
     let stdout: string
     try {
       ;({ stdout } = await nlm('studio', 'status', notebookId, '--json'))
@@ -203,6 +218,7 @@ export async function runStage2(
       const msg = String(err)
       if (msg.includes('502') || msg.includes('503') || msg.includes('timeout')) {
         console.log('  Status check failed (transient), retrying...')
+        await sleep(POLL_INTERVAL_MS)
         continue
       }
       throw err
@@ -213,39 +229,40 @@ export async function runStage2(
     if (audio?.status === 'completed') break
     if (audio?.status === 'failed') throw new Error('Audio generation failed')
     // 'unknown' can appear when NLM finishes but returns an unmapped status code.
-    // Wait 60s then attempt download optimistically; if it fails, keep polling.
+    // Attempt download optimistically; if it fails, keep polling.
     if (audio?.status === 'unknown') {
-      console.log('  Status unknown — waiting 60s then attempting download...')
-      await sleep(60_000)
+      console.log('  Status unknown — attempting download optimistically...')
       try {
-        await execa('nlm', ['download', 'audio', notebookId, '--output', podcastFile, '--no-progress'])
-        if (existsSync(podcastFile) && statSync(podcastFile).size > 0) break
+        await execa('nlm', ['download', 'audio', notebookId, '--output', rawFile, '--no-progress'])
+        if (existsSync(rawFile) && statSync(rawFile).size > 0) break
       } catch { /* not ready yet, keep polling */ }
     }
     attempts++
-    console.log(`  Still generating... (${attempts * 10}s elapsed)`)
+    console.log(`  Still generating... (${(attempts + 1) * 60}s elapsed)`)
+    await sleep(POLL_INTERVAL_MS)
   }
   if (attempts >= maxAttempts) throw new Error(`Audio generation timed out — notebook ${notebookId} left intact for manual recovery`)
 
-  // Download (nlm download audio doesn't support --profile; uses current default)
-  if (!existsSync(podcastFile) || statSync(podcastFile).size === 0) {
-    console.log(`  Downloading to ${podcastFile}`)
-    await execa('nlm', ['download', 'audio', notebookId, '--output', podcastFile, '--no-progress'])
+  // Download raw audio
+  if (!existsSync(rawFile) || statSync(rawFile).size === 0) {
+    console.log(`  Downloading...`)
+    await execa('nlm', ['download', 'audio', notebookId, '--output', rawFile, '--no-progress'])
   }
 
-  if (!existsSync(podcastFile) || statSync(podcastFile).size === 0) {
-    throw new Error(`Download failed or empty file: ${podcastFile}`)
+  if (!existsSync(rawFile) || statSync(rawFile).size === 0) {
+    throw new Error(`Download failed or empty file: ${rawFile}`)
   }
 
-  const sizeMb = (statSync(podcastFile).size / 1024 / 1024).toFixed(1)
-  console.log(`  Downloaded: ${podcastFile.split(/[\\/]/).pop()} (${sizeMb} MB)`)
+  const sizeMb = (statSync(rawFile).size / 1024 / 1024).toFixed(1)
+  console.log(`  Downloaded: ${rawFile.split(/[\\/]/).pop()} (${sizeMb} MB)`)
 
   // Only delete notebook after successful download
   console.log(`  Deleting notebook ${notebookId}`)
   await deleteNotebook(notebookId)
 
   // Post-process: add music intro/outro, talker overlay, mono, compress
-  await postProcess(podcastFile, podcastFile)
+  await postProcess(rawFile, podcastFile)
+  unlinkSync(rawFile)
 
   return { podcastFile, tagline }
 }

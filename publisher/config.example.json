@@ -2,7 +2,10 @@
   "workerUrl": "",
   "bucketName": "",
   "prefix": "",
-  "podcastTitle": "ClaudeCast",
-  "podcastAuthor": "",
-  "podcastDescription": "AI-assisted development podcast"
+  "podcast": {
+    "title": "ClaudeCast",
+    "author": "",
+    "description": "AI-assisted development podcast",
+    "language": "en"
+  }
 }

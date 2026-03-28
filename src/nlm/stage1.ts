@@ -4,10 +4,12 @@
  * queries for a structured summary, saves it as a .md file, then deletes the notebook.
  */
 import { execa } from 'execa'
-import { writeFileSync, existsSync, mkdirSync } from 'fs'
+import { writeFileSync, existsSync, mkdirSync, rmSync } from 'fs'
 import { join, dirname } from 'path'
 import { resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { tmpdir } from 'os'
+import { randomBytes } from 'crypto'
 import { extractSession, type ExtractOptions } from '../extractor/smart-extract.js'
 import type { TokenUsage } from '../extractor/parse-jsonl.js'
 import type { SessionFile } from '../utils/sessions.js'
@@ -62,36 +64,50 @@ async function deleteNotebook(id: string): Promise<void> {
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
 
 async function uploadTextSource(notebookId: string, text: string, title: string): Promise<void> {
-  // Use Python helper directly (nlm CLI source add is broken, Python library works)
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      await execa('python', [NLM_SOURCE_HELPER, notebookId, text, title])
-      return
-    } catch (err) {
-      if (attempt < 3) {
-        console.log(`    Upload failed, retrying in 15s... (attempt ${attempt}/3)`)
-        await sleep(15_000)
-      } else {
-        throw err
+  // Write to temp file to avoid Windows command-line length limits
+  const tempFile = join(tmpdir(), `nlm-source-${randomBytes(8).toString('hex')}.txt`)
+  writeFileSync(tempFile, text, 'utf-8')
+
+  try {
+    // Use Python helper directly (nlm CLI source add is broken, Python library works)
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await execa('python', [NLM_SOURCE_HELPER, notebookId, tempFile, title])
+        return
+      } catch (err) {
+        if (attempt < 3) {
+          console.log(`    Upload failed, retrying in 15s... (attempt ${attempt}/3)`)
+          await sleep(15_000)
+        } else {
+          throw err
+        }
       }
     }
+  } finally {
+    try { rmSync(tempFile) } catch { /* ignore */ }
   }
 }
 
 async function queryNotebook(notebookId: string): Promise<string> {
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const { stdout } = await execa('python', [NLM_QUERY_HELPER, notebookId, STAGE1_PROMPT])
-      return stdout.trim()
-    } catch (err) {
-      const msg = String(err)
-      if (attempt < 3 && (msg.includes('502') || msg.includes('503') || msg.includes('timeout'))) {
-        console.log(`    Query failed (transient), retrying in 30s... (attempt ${attempt}/3)`)
-        await sleep(30_000)
-      } else {
-        throw err
+  const tempFile = join(tmpdir(), `nlm-query-${randomBytes(8).toString('hex')}.txt`)
+  writeFileSync(tempFile, STAGE1_PROMPT, 'utf-8')
+
+  try {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const { stdout } = await execa('python', [NLM_QUERY_HELPER, notebookId, tempFile])
+        return stdout.trim()
+      } catch (err) {
+        if (attempt < 3) {
+          console.log(`    Query failed, retrying in 30s... (attempt ${attempt}/3)`)
+          await sleep(30_000)
+        } else {
+          throw err
+        }
       }
     }
+  } finally {
+    try { rmSync(tempFile) } catch { /* ignore */ }
   }
   throw new Error('Query failed after 3 attempts')
 }

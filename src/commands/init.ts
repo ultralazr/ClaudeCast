@@ -101,7 +101,17 @@ export async function initCommand(): Promise<void> {
   writeFileSync(CONFIG_PATH, JSON.stringify(projectsConfig, null, 2), 'utf-8')
   console.log(`\n✓ Wrote ${CONFIG_PATH}`)
 
-  const publisherConfig = { workerUrl, bucketName, ...(prefix ? { prefix } : {}), podcastTitle, podcastAuthor, podcastDescription }
+  const publisherConfig = {
+    workerUrl,
+    bucketName,
+    ...(prefix ? { prefix } : {}),
+    podcast: {
+      title: podcastTitle,
+      author: podcastAuthor,
+      description: podcastDescription,
+      language: 'en',
+    },
+  }
   writeFileSync(PUBLISHER_CONFIG_PATH, JSON.stringify(publisherConfig, null, 2), 'utf-8')
   console.log(`✓ Wrote ${PUBLISHER_CONFIG_PATH}`)
 

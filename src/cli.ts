@@ -109,6 +109,20 @@ program
     })
   })
 
+// ── postprocess ───────────────────────────────────────────────────────────────
+program
+  .command('postprocess <input> [output]')
+  .description('Run audio post-processing on an existing file (adds music, talker overlay, mono)')
+  .action(async (input: string, output?: string) => {
+    const { postProcess } = await import('./nlm/post-process.js')
+    const { resolve } = await import('path')
+    const inFile = resolve(input)
+    const outFile = resolve(output ?? input)
+    console.log(`Post-processing: ${inFile}`)
+    if (output) console.log(`Output: ${outFile}`)
+    await postProcess(inFile, outFile)
+  })
+
 // ── publish ───────────────────────────────────────────────────────────────────
 program
   .command('publish')

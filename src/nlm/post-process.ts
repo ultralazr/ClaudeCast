@@ -10,8 +10,9 @@
  *   ...–4s   Outro crossfade: last 4s of NLM fades out into music outro
  *   outro    Remaining music outro plays out (10s outro total)
  */
+import { execSync } from 'child_process'
 import { execa } from 'execa'
-import { existsSync, statSync, unlinkSync } from 'fs'
+import { existsSync, readdirSync, statSync, unlinkSync } from 'fs'
 import { renameSync } from 'fs'
 import { dirname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
@@ -43,7 +44,6 @@ const FFMPEG_WINDOWS_CANDIDATES = [
 function findFfmpegBin(name: 'ffmpeg' | 'ffprobe'): string {
   // 1. Try PATH first
   try {
-    const { execSync } = require('child_process') as typeof import('child_process')
     const cmd = process.platform === 'win32' ? `where ${name}` : `which ${name}`
     const result = execSync(cmd, { stdio: 'pipe' }).toString().trim().split('\n')[0]
     if (result) return result.trim()
@@ -51,25 +51,23 @@ function findFfmpegBin(name: 'ffmpeg' | 'ffprobe'): string {
 
   // 2. Probe common Windows locations
   if (process.platform === 'win32') {
-    const { readdirSync, existsSync: exists } = require('fs') as typeof import('fs')
     const ext = '.exe'
     const wingetBase = FFMPEG_WINDOWS_CANDIDATES[0]
-    if (exists(wingetBase)) {
+    if (existsSync(wingetBase)) {
       for (const pkg of readdirSync(wingetBase)) {
         if (pkg.toLowerCase().includes('ffmpeg')) {
           try {
             for (const sub of readdirSync(join(wingetBase, pkg))) {
               const c = join(wingetBase, pkg, sub, 'bin', name + ext)
-              if (exists(c)) return c
+              if (existsSync(c)) return c
             }
           } catch { /* skip */ }
         }
       }
     }
     for (const dir of FFMPEG_WINDOWS_CANDIDATES.slice(1)) {
-      const { existsSync: exists2 } = require('fs') as typeof import('fs')
       const c = join(dir, name + ext)
-      if (exists2(c)) return c
+      if (existsSync(c)) return c
     }
   }
 
