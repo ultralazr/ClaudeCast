@@ -93,11 +93,26 @@ async function getBitrate(file: string): Promise<number> {
 
 export async function postProcess(rawFile: string, outFile: string): Promise<void> {
   if (!existsSync(rawFile)) throw new Error(`Input file not found: ${rawFile}`)
-  if (!existsSync(MUSIC_FILE)) throw new Error(`Music file not found: ${MUSIC_FILE}`)
-  if (!existsSync(TALKER_FILE)) throw new Error(`Talker file not found: ${TALKER_FILE}`)
+
+  const hasMusic = existsSync(MUSIC_FILE)
+  const hasTalker = existsSync(TALKER_FILE)
+
+  if (!hasMusic) {
+    console.log('  Warning: music.wav not found — skipping post-processing, using raw NLM audio.')
+    if (rawFile !== outFile) {
+      const { copyFileSync } = await import('fs')
+      copyFileSync(rawFile, outFile)
+    }
+    return
+  }
+
+  if (!hasTalker) {
+    console.log('  Note: talker.mp3 not found — skipping talker overlay.')
+  }
 
   console.log('  Post-processing audio...')
 
+  const filesToProbe = [rawFile, MUSIC_FILE]
   const [nlmDuration, musicDuration, inputBitrate] = await Promise.all([
     getDuration(rawFile),
     getDuration(MUSIC_FILE),
@@ -106,36 +121,38 @@ export async function postProcess(rawFile: string, outFile: string): Promise<voi
 
   console.log(`  NLM track: ${nlmDuration.toFixed(1)}s | Music: ${musicDuration.toFixed(1)}s | Input: ${Math.round(inputBitrate / 1000)}k`)
 
-  const outroMusicStart = musicDuration - 10   // start of the last 10s of music
+  const outroMusicStart = musicDuration - 10
   const targetBitrate = Math.max(32, Math.min(Math.round(inputBitrate * 0.6 / 1000), 256))
   console.log(`  Target bitrate: ${targetBitrate}k AAC mono (~60% of input)`)
 
-  // Filter graph:
-  //   [1:a] trim 0→23s  → [music_intro]
-  //   [1:a] trim last10s → [music_outro]
-  //   [music_intro][0:a] acrossfade d=5 → [intro_nlm]   (crossfade at 18s–23s of music)
-  //   [intro_nlm][music_outro] acrossfade d=4 → [with_music]
-  //   [2:a] adelay 9000ms → [talker]
-  //   [with_music][talker] amix duration=first → [mixed]
-  //   [mixed] pan mono → [out]
-  const filter = [
+  // Build filter graph — talker overlay is optional
+  const filterParts = [
     `[1:a]atrim=0:23,asetpts=PTS-STARTPTS[music_intro]`,
     `[1:a]atrim=${outroMusicStart},asetpts=PTS-STARTPTS[music_outro]`,
     `[music_intro][0:a]acrossfade=d=5:c1=tri:c2=nofade[intro_nlm]`,
     `[intro_nlm][music_outro]acrossfade=d=4:c1=tri:c2=tri[with_music]`,
-    `[2:a]adelay=9000:all=1,volume=1.8[talker]`,
-    `[with_music][talker]amix=inputs=2:duration=first:dropout_transition=2[mixed]`,
-    `[mixed]pan=mono|c0=0.5*c0+0.5*c1[out]`,
-  ].join(';')
+  ]
+
+  let lastLabel = 'with_music'
+  const inputs: string[] = [rawFile, MUSIC_FILE]
+
+  if (hasTalker) {
+    const talkerIdx = inputs.length
+    inputs.push(TALKER_FILE)
+    filterParts.push(`[${talkerIdx}:a]adelay=9000:all=1,volume=1.8[talker]`)
+    filterParts.push(`[with_music][talker]amix=inputs=2:duration=first:dropout_transition=2[mixed]`)
+    lastLabel = 'mixed'
+  }
+
+  filterParts.push(`[${lastLabel}]pan=mono|c0=0.5*c0+0.5*c1[out]`)
+  const filter = filterParts.join(';')
 
   const tmpFile = outFile.replace(/\.m4a$/, '_pp_tmp.m4a')
 
   try {
     console.log('  Running ffmpeg...')
-    await execa(ffmpegBin('ffmpeg'), [
-      '-i', rawFile,
-      '-i', MUSIC_FILE,
-      '-i', TALKER_FILE,
+    const ffmpegArgs = [
+      ...inputs.flatMap(f => ['-i', f]),
       '-filter_complex', filter,
       '-map', '[out]',
       '-c:a', 'aac',
@@ -143,7 +160,8 @@ export async function postProcess(rawFile: string, outFile: string): Promise<voi
       '-movflags', '+faststart',
       '-y',
       tmpFile,
-    ])
+    ]
+    await execa(ffmpegBin('ffmpeg'), ffmpegArgs)
 
     if (existsSync(outFile)) unlinkSync(outFile)
     renameSync(tmpFile, outFile)
