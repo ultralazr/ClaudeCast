@@ -6,7 +6,12 @@ import { loadEpisodeState, saveEpisodeState, recordEpisode } from '../storage/ep
 import { runStage1 } from '../nlm/stage1.js'
 import { runStage2 } from '../nlm/stage2.js'
 
-export async function episodeCommand(options: { dryRun?: boolean }): Promise<void> {
+export async function episodeCommand(options: {
+  dryRun?: boolean
+  sessions?: string[]   // explicit session ID prefixes — bypasses normal discovery
+  from?: Date           // override window start
+  to?: Date             // override window end
+}): Promise<void> {
   const config = loadConfig()
   const minMinutes = (config as unknown as Record<string, number>)['minSessionMinutes'] ?? 5
   const state = loadEpisodeState()
@@ -15,25 +20,41 @@ export async function episodeCommand(options: { dryRun?: boolean }): Promise<voi
 
   if (!options.dryRun) await ensureAuth()
 
-  // Determine window: lastRunContentEnd → now
-  // Fallback: if lastRunContentEnd is unset but episodes exist, use the last episode's windowEnd
-  //           to avoid re-processing all history
-  const lastEpisode = state.episodes[String(state.lastEpisodeNumber)]
-  const rawWindowStart = state.lastRunContentEnd
-    ?? (lastEpisode?.windowEnd ?? null)
-  const windowStart = rawWindowStart ? new Date(rawWindowStart) : null
-  const windowEnd = new Date()
+  // Determine window bounds
+  let windowStart: Date | null
+  let windowEnd: Date
 
-  if (windowStart) {
+  if (options.from) {
+    // Explicit --from overrides everything
+    windowStart = options.from
+  } else if (options.sessions) {
+    // Specific sessions requested without --from → no lower bound (whole session)
+    windowStart = null
+  } else {
+    // Normal incremental mode: lastRunContentEnd → now
+    const lastEpisode = state.episodes[String(state.lastEpisodeNumber)]
+    const rawWindowStart = state.lastRunContentEnd ?? (lastEpisode?.windowEnd ?? null)
+    windowStart = rawWindowStart ? new Date(rawWindowStart) : null
+  }
+  windowEnd = options.to ?? new Date()
+
+  if (options.sessions) {
+    console.log(`Processing specific sessions: ${options.sessions.join(', ')}`)
+  } else if (windowStart) {
     console.log(`Processing sessions since: ${windowStart.toISOString()}`)
   } else {
-    console.log('No previous run found — processing all closed sessions up to now.')
+    console.log('No previous run found — processing all sessions up to now.')
   }
+  if (options.to) console.log(`Window end: ${windowEnd.toISOString()}`)
 
   const allSessions = findAllSessions(config.claudeDataDir)
   const excludedPrefixes = loadExcludedPrefixes()
 
-  const candidateSessions = allSessions.filter(s => !isExcluded(s.sessionId, excludedPrefixes))
+  const candidateSessions = allSessions.filter(s => {
+    if (isExcluded(s.sessionId, excludedPrefixes)) return false
+    if (options.sessions) return options.sessions.some(p => s.sessionId.startsWith(p))
+    return true
+  })
 
   // Group by project
   const byProject = new Map<string, { slug: string; sessions: typeof allSessions }>()
@@ -105,7 +126,10 @@ export async function episodeCommand(options: { dryRun?: boolean }): Promise<voi
     tokenUsage: episodeTokenUsage,
   }, state)
 
-  updated.lastRunContentEnd = windowEnd.toISOString()
+  // Only advance lastRunContentEnd for normal incremental runs, not ad-hoc session/date overrides
+  if (!options.sessions && !options.from && !options.to) {
+    updated.lastRunContentEnd = windowEnd.toISOString()
+  }
   updated.lastRunAt = nowStr
 
   if (!options.dryRun) saveEpisodeState(updated)

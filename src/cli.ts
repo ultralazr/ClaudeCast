@@ -97,8 +97,16 @@ program
   .command('episode')
   .description('Process the current episode (since last run) → summaries + ClaudeCast podcast')
   .option('--dry-run', 'Extract and show session info without calling NLM', false)
-  .action(async (opts: { dryRun: boolean }) => {
-    await episodeCommand({ dryRun: opts.dryRun })
+  .option('--session <ids>', 'Comma-separated session ID prefixes to include (bypasses normal discovery)')
+  .option('--from <date>', 'Override window start (ISO date, e.g. 2026-03-01)')
+  .option('--to <date>', 'Override window end (ISO date, default: now)')
+  .action(async (opts: { dryRun: boolean; session?: string; from?: string; to?: string }) => {
+    await episodeCommand({
+      dryRun: opts.dryRun,
+      sessions: opts.session?.split(',').map(s => s.trim()).filter(Boolean),
+      from: opts.from ? new Date(opts.from) : undefined,
+      to: opts.to ? new Date(opts.to) : undefined,
+    })
   })
 
 // ── publish ───────────────────────────────────────────────────────────────────
