@@ -76,6 +76,17 @@ pattern,replacement,flags
 
 Both files are gitignored — your redaction rules stay private.
 
+## Excluding sessions
+
+To skip specific sessions from extraction, add their IDs (or prefixes) to `config/exclude-sessions.txt`:
+
+```
+a1b2c3d4          # test session
+9f8e7d6c-1234     # contains sensitive content
+```
+
+Prefix matching means you only need the first 8 characters. This file is gitignored.
+
 ## Podcast prompt customization
 
 The NLM prompt that generates your podcast is in `config/stage2-prompt.txt`. Edit it to change the podcast style, host persona, or how projects are described. The prompt references the developer by name — update it to match your own handle.
@@ -113,5 +124,6 @@ config/
   projects.json          # Your personal config (gitignored)
   redact.csv             # Your redaction terms (gitignored)
   redact-patterns.csv    # Your regex patterns (gitignored)
+  exclude-sessions.txt   # Session IDs to skip (gitignored)
   stage2-prompt.txt      # NLM podcast prompt (committed, customize freely)
 ```

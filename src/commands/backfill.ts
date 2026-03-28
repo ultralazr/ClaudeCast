@@ -1,7 +1,7 @@
 import { format } from 'date-fns'
 import { ensureAuth } from '../nlm/auth.js'
 import { computeEpisodeWindows, episodePad } from '../utils/episode-windows.js'
-import { findAllSessions, getActiveSessionIds, readCwdFromJsonl } from '../utils/sessions.js'
+import { findAllSessions, loadExcludedPrefixes, isExcluded, readCwdFromJsonl } from '../utils/sessions.js'
 import { loadConfig, resolveProjectName } from '../utils/config.js'
 import { loadEpisodeState, saveEpisodeState, isEpisodeComplete, recordEpisode } from '../storage/episode-state.js'
 import { runStage1 } from '../nlm/stage1.js'
@@ -48,7 +48,7 @@ export async function backfillCommand(options: { dryRun?: boolean; limit?: numbe
 
   const episodes = computeEpisodeWindows(oldestUtc)
   const state = loadEpisodeState()
-  const activeSessions = await getActiveSessionIds(config.claudeDataDir)
+  const excludedPrefixes = loadExcludedPrefixes()
 
   const toProcess = options.limit ? episodes.slice(0, options.limit) : episodes
   console.log(`Found ${episodes.length} historical episode(s). Processing ${toProcess.length}...\n`)
@@ -62,7 +62,7 @@ export async function backfillCommand(options: { dryRun?: boolean; limit?: numbe
     console.log(`\n── ${ep.label} ──`)
 
     // Find sessions with content in this window
-    const sessionsInWindow = allSessions.filter(s => !activeSessions.has(s.sessionId))
+    const sessionsInWindow = allSessions.filter(s => !isExcluded(s.sessionId, excludedPrefixes))
 
     // Group by project
     const byProject = new Map<string, { slug: string; sessions: typeof allSessions }>()

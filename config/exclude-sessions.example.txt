@@ -1,0 +1,6 @@
+# Sessions to exclude from extraction.
+# One session ID (or prefix) per line. Lines starting with # are comments.
+#
+# Example:
+# a1b2c3d4          test session
+# 9f8e7d6c-1234     contains sensitive content

@@ -10,8 +10,10 @@ const CONFIG_PATH = resolve(ROOT, 'config/projects.json')
 const PUBLISHER_CONFIG_PATH = resolve(ROOT, 'publisher/config.json')
 const REDACT_CSV = resolve(ROOT, 'config/redact.csv')
 const PATTERNS_CSV = resolve(ROOT, 'config/redact-patterns.csv')
+const EXCLUDE_FILE = resolve(ROOT, 'config/exclude-sessions.txt')
 const REDACT_EXAMPLE = resolve(ROOT, 'config/redact.example.csv')
 const PATTERNS_EXAMPLE = resolve(ROOT, 'config/redact-patterns.example.csv')
+const EXCLUDE_EXAMPLE = resolve(ROOT, 'config/exclude-sessions.example.txt')
 const AUDIO_WRAPPERS_DIR = resolve(ROOT, 'data/audio_wrappers')
 
 function defaultClaudeDir(): string {
@@ -113,6 +115,10 @@ export async function initCommand(): Promise<void> {
   if (!existsSync(PATTERNS_CSV) && existsSync(PATTERNS_EXAMPLE)) {
     copyFileSync(PATTERNS_EXAMPLE, PATTERNS_CSV)
     console.log(`✓ Created ${PATTERNS_CSV} from example`)
+  }
+  if (!existsSync(EXCLUDE_FILE) && existsSync(EXCLUDE_EXAMPLE)) {
+    copyFileSync(EXCLUDE_EXAMPLE, EXCLUDE_FILE)
+    console.log(`✓ Created ${EXCLUDE_FILE} from example`)
   }
 
   // ── Ensure data dirs exist ───────────────────────────────────────────────────

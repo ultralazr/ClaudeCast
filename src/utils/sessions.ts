@@ -1,6 +1,10 @@
 import { readdirSync, readFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { join, resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 import { execa } from 'execa'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const EXCLUDE_FILE = resolve(__dirname, '../../config/exclude-sessions.txt')
 
 export interface SessionFile {
   sessionId: string
@@ -50,6 +54,20 @@ export async function readCwdFromJsonl(jsonlPath: string): Promise<string | null
     } catch { /* skip */ }
   }
   return null
+}
+
+/** Load excluded session ID prefixes from config/exclude-sessions.txt */
+export function loadExcludedPrefixes(): string[] {
+  if (!existsSync(EXCLUDE_FILE)) return []
+  return readFileSync(EXCLUDE_FILE, 'utf-8')
+    .split('\n')
+    .map(line => line.replace(/#.*/, '').trim())
+    .filter(line => line.length > 0)
+}
+
+/** Check if a session ID matches any excluded prefix */
+export function isExcluded(sessionId: string, prefixes: string[]): boolean {
+  return prefixes.some(prefix => sessionId.startsWith(prefix))
 }
 
 /** Returns the set of session IDs that are currently active (PID still running) */

@@ -1,6 +1,6 @@
 import { ensureAuth } from '../nlm/auth.js'
 import { episodePad } from '../utils/episode-windows.js'
-import { findAllSessions, getActiveSessionIds, readCwdFromJsonl } from '../utils/sessions.js'
+import { findAllSessions, loadExcludedPrefixes, isExcluded, readCwdFromJsonl } from '../utils/sessions.js'
 import { loadConfig, resolveProjectName } from '../utils/config.js'
 import { loadEpisodeState, saveEpisodeState, recordEpisode } from '../storage/episode-state.js'
 import { runStage1 } from '../nlm/stage1.js'
@@ -31,10 +31,9 @@ export async function episodeCommand(options: { dryRun?: boolean }): Promise<voi
   }
 
   const allSessions = findAllSessions(config.claudeDataDir)
-  const activeSessions = await getActiveSessionIds(config.claudeDataDir)
+  const excludedPrefixes = loadExcludedPrefixes()
 
-  // Find sessions with content after windowStart
-  const candidateSessions = allSessions.filter(s => !activeSessions.has(s.sessionId))
+  const candidateSessions = allSessions.filter(s => !isExcluded(s.sessionId, excludedPrefixes))
 
   // Group by project
   const byProject = new Map<string, { slug: string; sessions: typeof allSessions }>()

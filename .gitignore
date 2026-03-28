@@ -2,6 +2,7 @@
 config/projects.json
 config/redact.csv
 config/redact-patterns.csv
+config/exclude-sessions.txt
 publisher/config.json
 
 # Generated data (personal to each user)
