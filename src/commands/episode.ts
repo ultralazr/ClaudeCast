@@ -135,4 +135,7 @@ export async function episodeCommand(options: {
   if (!options.dryRun) saveEpisodeState(updated)
 
   console.log(`\n✓ Episode ${episodeNumber} complete${stage2?.podcastFile ? ` → ${stage2.podcastFile}` : ''}`)
+  if (stage2?.podcastFile && !options.dryRun) {
+    console.log(`  Episode audio is ready for local review. To publish to Cloudflare, run: devlog publish`)
+  }
 }
