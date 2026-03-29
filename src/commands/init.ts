@@ -75,6 +75,8 @@ export async function initCommand(): Promise<void> {
   let podcastTitle = 'ClaudeCast'
   let podcastAuthor = ''
   let podcastDescription = 'AI-assisted development podcast'
+  let feedUsername = ''
+  let feedPassword = ''
 
   if (wantPublisher) {
     workerUrl = await input({ message: 'Cloudflare Worker URL:', default: '' })
@@ -89,6 +91,8 @@ export async function initCommand(): Promise<void> {
       message: 'Podcast description:',
       default: 'AI-assisted development podcast',
     })
+    feedUsername = await input({ message: 'Feed username (for podcast app login):', default: '' })
+    feedPassword = await input({ message: 'Feed password (for podcast app login):', default: '' })
   }
 
   // ── Write config files ──────────────────────────────────────────────────────
@@ -105,6 +109,8 @@ export async function initCommand(): Promise<void> {
     workerUrl,
     bucketName,
     ...(prefix ? { prefix } : {}),
+    ...(feedUsername ? { feedUsername } : {}),
+    ...(feedPassword ? { feedPassword } : {}),
     podcast: {
       title: podcastTitle,
       author: podcastAuthor,

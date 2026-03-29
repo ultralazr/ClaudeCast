@@ -87,4 +87,8 @@ export async function publishCommand(opts: PublishOptions): Promise<void> {
 
   const feedUrl = `${cfg.workerUrl.replace(/\/$/, '')}/${feedKey}`
   console.log(`\nDone. Feed URL: ${feedUrl}`)
+  if (cfg.feedUsername && cfg.feedPassword) {
+    console.log(`  Username: ${cfg.feedUsername}`)
+    console.log(`  Password: ${cfg.feedPassword}`)
+  }
 }

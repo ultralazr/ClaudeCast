@@ -2,6 +2,8 @@
   "workerUrl": "",
   "bucketName": "",
   "prefix": "",
+  "feedUsername": "",
+  "feedPassword": "",
   "podcast": {
     "title": "ClaudeCast",
     "author": "",
