@@ -16,7 +16,7 @@ Automatically generates a weekly developer podcast from your Claude Code session
 ## Prerequisites
 
 - **Node.js** 20+
-- **Python** 3.9+ with `notebooklm-tools` installed:
+- **Python** 3.9+ with [`notebooklm-mcp-cli`](https://github.com/jacob-bd/notebooklm-mcp-cli) installed:
   ```bash
   pip install -r requirements.txt
   ```
@@ -52,6 +52,38 @@ devlog init        # interactive setup wizard
 If you're setting up ClaudeCast with Claude Code, ask it to:
 - Scan your session files and suggest additions to `config/redact.csv` and `config/redact-patterns.csv`
 - Help you personalise `config/stage2-prompt.txt` to match your podcast style and host persona
+
+### Automated setup prompt
+
+Paste this into Claude Code to have it handle the full installation:
+
+```
+I need help installing and setting up ClaudeCast. Here's what the project does and how to install it:
+
+---
+
+Automatically generates a weekly developer podcast from your Claude Code session logs. Each week's coding sessions are summarized per project by NotebookLM, then combined into a single audio episode.
+
+**Prerequisites:**
+- Node.js 20+
+- Python 3.9+
+- ffmpeg (installed and on PATH)
+- NotebookLM account (authenticated via `nlm login`)
+- Cloudflare account (optional, for publishing)
+
+**Installation steps:**
+1. `npm install` — builds TypeScript via prepare script
+2. `pip install -r requirements.txt` — installs Python dependencies (notebooklm-tools is bundled inside notebooklm-mcp-cli)
+3. `npm install -g .` — installs the `devlog` command globally
+4. `devlog init` — interactive setup wizard
+
+**What I need you to do:**
+1. Check that all prerequisites are installed (node, python, ffmpeg, nlm CLI). Tell me what's missing before proceeding.
+2. Run the installation steps above. If `pip install -r requirements.txt` fails on `notebooklm-tools`, install `notebooklm-mcp-cli` instead — it bundles the same module.
+3. Run `devlog init` and walk me through the prompts.
+4. After init completes, scan my session files in ~/.claude/ and suggest additions to `config/redact.csv` and `config/redact-patterns.csv` so personal data gets stripped before reaching NotebookLM.
+5. Help me personalise `config/stage2-prompt.txt` to match my preferred podcast style and host persona.
+```
 
 ## Audio wrappers
 
