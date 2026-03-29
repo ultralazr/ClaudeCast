@@ -39,6 +39,17 @@ Automatically generates a weekly developer podcast from your Claude Code session
 
 ## Installation
 
+**One-liner (Linux / macOS):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/ultralazr/ClaudeCast/main/install.sh | bash
+```
+
+**One-liner (Windows PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/ultralazr/ClaudeCast/main/install.ps1 | iex
+```
+
+**Manual install:**
 ```bash
 git clone https://github.com/ultralazr/ClaudeCast.git
 cd ClaudeCast
