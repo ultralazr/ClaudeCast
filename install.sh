@@ -4,7 +4,7 @@ set -euo pipefail
 # ClaudeCast installer
 # Usage: curl -fsSL https://raw.githubusercontent.com/ultralazr/ClaudeCast/main/install.sh | bash
 
-REPO="https://github.com/ultralazr/ClaudeCast.git"
+REPO="git@github.com:ultralazr/ClaudeCast.git"
 MIN_NODE=20
 MIN_PYTHON=3
 

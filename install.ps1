@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$Repo = "https://github.com/ultralazr/ClaudeCast.git"
+$Repo = "git@github.com:ultralazr/ClaudeCast.git"
 $MinNode = 20
 
 function Info($msg)  { Write-Host "[+] $msg" -ForegroundColor Green }
