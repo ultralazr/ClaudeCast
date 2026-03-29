@@ -77,7 +77,6 @@ export async function episodeCommand(options: {
   let latestTimestamp: string | null = null
 
   for (const [project, { slug, sessions }] of byProject) {
-    console.log(`\nProject: ${project}`)
     const result = await runStage1(
       episodeNumber,
       padded,
