@@ -47,6 +47,12 @@ devlog init        # interactive setup wizard
 - Copy starter redaction config files
 - Check that all prerequisites are reachable
 
+## Claude Code users
+
+If you're setting up ClaudeCast with Claude Code, ask it to:
+- Scan your session files and suggest additions to `config/redact.csv` and `config/redact-patterns.csv`
+- Help you personalise `config/stage2-prompt.txt` to match your podcast style and host persona
+
 ## Audio wrappers
 
 Default intro/outro music and a talker overlay are included in `assets/audio/`. They're used automatically — no setup needed.
