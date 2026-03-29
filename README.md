@@ -103,12 +103,25 @@ The NLM prompt that generates your podcast is in `config/stage2-prompt.txt`. Edi
 ## Commands
 
 ```bash
-devlog init                   # First-time setup
-devlog episode                # Process current episode (since last run)
-devlog episode --dry-run      # Show what would be processed without calling NLM
+devlog init                   # First-time setup wizard
+
+devlog episode                # Process current episode (incremental, since last run)
+devlog episode --dry-run      # Preview what would be processed without calling NLM
+devlog episode --from <date>  # Override window start (e.g. 2026-03-01)
+devlog episode --to <date>    # Override window end (default: now)
+devlog episode --session <id> [<id>...]   # Include specific sessions only (prefix match)
+                                          # Combine with --from/--to to filter further
+
+devlog postprocess <input> [output]       # Re-run audio post-processing on an existing file
+
 devlog backfill               # Process all historical episodes
+devlog backfill --dry-run     # Preview without calling NLM
 devlog backfill --limit 1     # Process only the oldest unprocessed episode
+
 devlog publish                # Upload new episodes to Cloudflare R2 + regenerate RSS
+devlog publish --dry-run      # Preview without uploading
+devlog publish --force        # Re-upload all episodes
+
 devlog config add-project <path> <name>   # Map a project directory to a friendly name
 devlog config list-projects               # List configured project mappings
 ```
