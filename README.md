@@ -18,7 +18,7 @@ Automatically generates a weekly developer podcast from your Claude Code session
 - **Node.js** 20+
 - **Python** 3.9+ with `notebooklm-tools` installed:
   ```bash
-  pip install notebooklm-tools
+  pip install -r requirements.txt
   ```
 - **ffmpeg** — install and add to PATH, or on Windows:
   ```bash
