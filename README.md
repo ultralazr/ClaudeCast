@@ -20,8 +20,15 @@ Automatically generates a weekly developer podcast from your Claude Code session
   ```bash
   pip install -r requirements.txt
   ```
-- **ffmpeg** — install and add to PATH, or on Windows:
+- **ffmpeg** — install and add to PATH:
   ```bash
+  # macOS
+  brew install ffmpeg
+  # Ubuntu / Debian
+  sudo apt install ffmpeg
+  # Arch
+  sudo pacman -S ffmpeg
+  # Windows
   winget install Gyan.FFmpeg
   ```
 - **NotebookLM account** — authenticate with:
@@ -35,9 +42,10 @@ Automatically generates a weekly developer podcast from your Claude Code session
 ```bash
 git clone https://github.com/ultralazr/ClaudeCast.git
 cd ClaudeCast
-npm install        # auto-builds TypeScript via prepare script
-npm install -g .   # installs the devlog command globally
-devlog init        # interactive setup wizard
+npm install                # auto-builds TypeScript via prepare script
+pip install -r requirements.txt   # Python dependencies
+npm install -g .           # installs the devlog command globally
+devlog init                # interactive setup wizard
 ```
 
 `devlog init` will:
@@ -46,6 +54,16 @@ devlog init        # interactive setup wizard
 - Create `config/projects.json` and `publisher/config.json`
 - Copy starter redaction config files
 - Check that all prerequisites are reachable
+
+## Quick start
+
+Once installed, generate your first episode:
+
+```bash
+devlog episode --dry-run    # preview what sessions would be processed
+devlog episode              # extract, redact, summarize, generate podcast
+devlog postprocess data/episodes/01/*.m4a   # re-run audio post-processing if needed
+```
 
 ## Claude Code users
 
@@ -79,7 +97,7 @@ Automatically generates a weekly developer podcast from your Claude Code session
 
 **What I need you to do:**
 1. Check that all prerequisites are installed (node, python, ffmpeg, nlm CLI). Tell me what's missing before proceeding.
-2. Run the installation steps above. If `pip install -r requirements.txt` fails on `notebooklm-tools`, install `notebooklm-mcp-cli` instead — it bundles the same module.
+2. Run the installation steps above.
 3. Run `devlog init` and walk me through the prompts.
 4. After init completes, scan my session files in ~/.claude/ and suggest additions to `config/redact.csv` and `config/redact-patterns.csv` so personal data gets stripped before reaching NotebookLM.
 5. Help me personalise `config/stage2-prompt.txt` to match my preferred podcast style and host persona.
@@ -163,7 +181,7 @@ devlog config list-projects               # List configured project mappings
 ClaudeCast groups sessions by the `cwd` recorded in Claude Code session files. Without mappings the folder names are used as-is (functional but ugly). Add friendly names:
 
 ```bash
-devlog config add-project "/Users/you/projects/my-app" "my-app"
+devlog config add-project ~/projects/my-app "my-app"
 ```
 
 ## Data directory layout
