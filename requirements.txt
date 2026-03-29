@@ -1,1 +1,1 @@
-notebooklm-tools==0.4.8
+notebooklm-mcp-cli>=0.5.11
