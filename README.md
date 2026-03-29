@@ -16,10 +16,7 @@ Automatically generates a weekly developer podcast from your Claude Code session
 ## Prerequisites
 
 - **Node.js** 20+
-- **Python** 3.9+ with [`notebooklm-mcp-cli`](https://github.com/jacob-bd/notebooklm-mcp-cli) installed:
-  ```bash
-  pip install -r requirements.txt
-  ```
+- **Python** 3.9+
 - **ffmpeg** — install and add to PATH:
   ```bash
   # macOS
@@ -31,10 +28,7 @@ Automatically generates a weekly developer podcast from your Claude Code session
   # Windows
   winget install Gyan.FFmpeg
   ```
-- **NotebookLM account** — authenticate with:
-  ```bash
-  nlm login
-  ```
+- **[NotebookLM](https://notebooklm.google.com/) account** — after install, authenticate with `nlm login`
 - **Cloudflare account** *(optional, for publishing)* — R2 bucket + Worker
 
 ## Installation
@@ -210,3 +204,7 @@ config/
   exclude-sessions.txt   # Session IDs to skip (gitignored)
   stage2-prompt.txt      # NLM podcast prompt (committed, customize freely)
 ```
+
+## Acknowledgements
+
+- [notebooklm-mcp-cli](https://github.com/jacob-bd/notebooklm-mcp-cli) — Python client for the NotebookLM API
