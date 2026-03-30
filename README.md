@@ -2,7 +2,7 @@
 
 ClaudeCast pulls your **Claude Code session logs**, strips personal/sensitive data locally (according to **configurable redaction rules**), then uploads session extracts to Google NotebookLM (NLM) to create **structured session summaries (topics, challenges, decisions, lessons learned, etc)**.
 
-Because you can't even be bothered to read these, ClaudeCast also **generates a hilarious 25 minute deep-dive podcast episode** via NLM, roasting (or praising - change the prompt file to taste) the desasters you and your clanker created/prevented in the last days.
+Because you can't even be bothered to read these, ClaudeCast also **generates a hilarious 25 minute deep-dive podcast episode** via NLM, roasting (or praising - change the prompt file to taste) the desasters you and your clanker created/prevented in the last days. Includes automated local audio post-processing (intro/outro music & podcast title announcement). 
 
 Because you're too busy chilling & travelling while your agent is busy putting food on the table, ClaudeCast can **automatically upload the latest episode to your personal/shareable podcast feed** (requires free-tier Cloudflare R2 bucket). The next episode will automatically pick up where the previous episode left off, and include a summary of the previous episode by default. 
 
@@ -14,11 +14,11 @@ Because you're too busy chilling & travelling while your agent is busy putting f
 ## How it works
 
 1. **Extract** — reads raw Claude Code session files from `~/.claude/`
-2. **Redact** — strips personal data using configurable rules
-3. **Summarize** — uploads session content to NotebookLM, queries for per-project summaries
-4. **Podcast** — NotebookLM generates a Deep Dive audio episode
-5. **Post-process** — adds intro/outro music and optional talker overlay
-6. **Publish** — uploads to Cloudflare R2, regenerates RSS feed
+2. **Redact** — strips personal data using configurable rules (configure to taste or let Claude make suggestions based on your actual logs)
+3. **Summarize** — uploads session content to NotebookLM (your account), queries for per-project summaries (apapt prompt text to taste)
+4. **Podcast** — NotebookLM generates a Deep Dive audio episode (apapt prompt text to taste)
+5. **Post-process** — adds intro/outro music and optional talker overlay (replace with your own if you like)
+6. **Publish** — uploads to Cloudflare R2, regenerates RSS feed (requires free-tier R2 bucket)
 
 ## Prerequisites
 
