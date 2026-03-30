@@ -1,8 +1,8 @@
 # ClaudeCast
 
-![ClaudeCast](publisher/cover-promo.png)
+ClaudeCast pulls your Claude Code session logs, strips personal/sensitive data locally (according to configurable redaction rules), then uploads session extracts to Google NotebookLM (NLM) to create structured session summaries (topics, challenges, decisions, lessons learned, etc). Because you can't even be bothered to read these, ClaudeCast also generates a hilarious 25 minute deep-dive podcast episode via NLM, roasting (or praising - change the prompt file to taste) the desasters you and your clanker created/prevented in the last days. Because you're too busy chilling & travelling while your agent is busy putting food on the table, ClaudeCast can automatically upload the latest episode to your personal/shareable podcast feed (requrires free-tier Cloudflare R2 bucket). The next episode will pick up where the previous episode left off, and include a summary of the previous episode by default.
 
-Automatically generates a weekly developer podcast from your Claude Code session logs. Each week's coding sessions are summarized per project by NotebookLM, then combined into a single audio episode — your personal AI-assisted dev podcast.
+![ClaudeCast](publisher/cover-promo.png)
 
 ## How it works
 
