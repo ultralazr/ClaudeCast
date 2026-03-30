@@ -4,9 +4,9 @@ ClaudeCast pulls your **Claude Code session logs**, strips personal/sensitive da
 
 Because you can't even be bothered to read these, ClaudeCast also **generates a hilarious 25 minute deep-dive podcast episode** via NLM, roasting (or praising - change the prompt file to taste) the desasters you and your clanker created/prevented in the last days.
 
-Because you're too busy chilling & travelling while your agent is busy putting food on the table, ClaudeCast can **automatically upload the latest episode to your personal/shareable podcast feed** (requrires free-tier Cloudflare R2 bucket). The next episode will automatically pick up where the previous episode left off, and include a summary of the previous episode by default. 
+Because you're too busy chilling & travelling while your agent is busy putting food on the table, ClaudeCast can **automatically upload the latest episode to your personal/shareable podcast feed** (requires free-tier Cloudflare R2 bucket). The next episode will automatically pick up where the previous episode left off, and include a summary of the previous episode by default. 
 
-Finally learn why Claude secretly tried to click that same website button a zillion times (and then decided not to tell you about it), while you hit the beach. Share your agentic coding adventures with friends & family (or anybody who didn't ask for it)!
+**Finally learn why Claude secretly tried to click that same website button a zillion times (and then decided not to tell you about it), while you hit the beach. Share your agentic coding adventures with friends & family - or anybody who didn't ask for it.**
 
 
 ![ClaudeCast](publisher/cover-promo.png)
