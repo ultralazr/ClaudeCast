@@ -1,4 +1,4 @@
-# ClaudeCast - Create structured summaries and podcasts from your Claude session logs
+# ClaudeCast - Create structured summaries and podcasts from your Claude session logs & get them meta-roasted at [ClaudeCast.cc](https://claudecast.cc)
 
 ClaudeCast pulls your **Claude Code session logs**, strips personal/sensitive data locally (according to **configurable redaction rules**), then uploads session extracts to Google NotebookLM (NLM) to create **structured session summaries (topics, challenges, decisions, lessons learned, etc)**.
 
@@ -8,6 +8,7 @@ Because you're too busy chilling & travelling while your agent is busy putting f
 
 **Finally learn why Claude secretly tried to click that same website button a zillion times (and then decided not to tell you about it), while you hit the beach. Share your agentic coding adventures with friends & family - or anybody who didn't ask for it.**
 
+**We're setting up [ClaudeCast.cc](https://claudecast.cc) to meta-roast your podcast desasters on a weekly basis. Stay tuned**
 
 ![ClaudeCast](publisher/cover-promo-v4.png.png)
 
