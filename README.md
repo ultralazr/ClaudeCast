@@ -9,7 +9,7 @@ Because you're too busy chilling & travelling while your agent is busy putting f
 **Finally learn why Claude secretly tried to click that same website button a zillion times (and then decided not to tell you about it), while you hit the beach. Share your agentic coding adventures with friends & family - or anybody who didn't ask for it.**
 
 
-![ClaudeCast](publisher/cover-promo-v3.png)
+![ClaudeCast](publisher/cover-promo-v4.png.png)
 
 ## How it works
 
