@@ -10,6 +10,8 @@ Because you're too busy chilling & travelling while your agent is busy putting f
 
 **We're setting up [ClaudeCast.cc](https://claudecast.cc) to meta-roast your podcast desasters on a weekly basis. Stay tuned!**
 
+Heavy shout-out to [Jacob BD](https://github.com/jacob-bd) for the [NotebookLM MCP CLI repo](https://github.com/jacob-bd/notebooklm-mcp-cli) which made this all possible.
+
 ![ClaudeCast](publisher/cover-promo-v4.png.png)
 
 ## How it works
