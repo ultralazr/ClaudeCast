@@ -8,11 +8,13 @@ Because you're too busy chilling & travelling while your agent is busy putting f
 
 **Finally learn why Claude secretly tried to click that same website button a zillion times (and then decided not to tell you about it), while you hit the beach. Share your agentic coding adventures with friends & family - or anybody who didn't ask for it.**
 
-**We're setting up [ClaudeCast.cc](https://claudecast.cc) to meta-roast your podcast desasters on a weekly basis. Stay tuned!**
+**[ClaudeCast.cc](https://claudecast.cc) is now open for your submisson!**
 
 Heavy shout-out to [Jacob BD](https://github.com/jacob-bd) for the [NotebookLM MCP CLI repo](https://github.com/jacob-bd/notebooklm-mcp-cli) which made this all possible.
 
-![ClaudeCast](publisher/cover-promo-v4.png.png)
+Listen to the premiere episode here:
+
+[![Watch the video](https://img.youtube.com/vi/K9jmVp87CHs/hqdefault.jpg)](https://www.youtube.com/embed/K9jmVp87CHs)
 
 ## How it works
 
@@ -141,6 +143,7 @@ term,replacement,case_sensitive
 Acme Corp,Example Inc.,false
 john.doe,demo-user-1,false
 ```
+![ClaudeCast](publisher/cover-promo-v4.png.png)
 
 **`config/redact-patterns.csv`** — regex patterns (copy from `config/redact-patterns.example.csv`):
 ```csv
