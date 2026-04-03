@@ -12,7 +12,7 @@ Because you're too busy chilling & travelling while your agent is busy putting f
 
 Heavy shout-out to [Jacob BD](https://github.com/jacob-bd) for the [NotebookLM MCP CLI repo](https://github.com/jacob-bd/notebooklm-mcp-cli) which made this all possible.
 
-Listen to the premiere episode here:
+Listen to the premiere episode here on Youtube (click image):
 
 [![Watch the video](https://img.youtube.com/vi/K9jmVp87CHs/maxresdefault.jpg)](https://www.youtube.com/embed/K9jmVp87CHs)
 
