@@ -14,7 +14,7 @@ Heavy shout-out to [Jacob BD](https://github.com/jacob-bd) for the [NotebookLM M
 
 Listen to the premiere episode here:
 
-[![Watch the video](https://img.youtube.com/vi/K9jmVp87CHs/hqdefault.jpg)](https://www.youtube.com/embed/K9jmVp87CHs)
+[![Watch the video](https://img.youtube.com/vi/K9jmVp87CHs/maxresdefault.jpg)](https://www.youtube.com/embed/K9jmVp87CHs)
 
 ## How it works
 
