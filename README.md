@@ -1,6 +1,6 @@
-# ClaudeCast - Create structured summaries and podcasts from your Claude session logs & get them meta-roasted at [ClaudeCast.cc](https://claudecast.cc)
+# ClaudeCast - Create structured summaries and podcasts from your Claude & Pi session logs + get them meta-roasted at [ClaudeCast.cc](https://claudecast.cc)
 
-ClaudeCast pulls your **Claude Code session logs**, strips personal/sensitive data locally (according to **configurable redaction rules**), then uploads session extracts to Google NotebookLM (NLM) to create **structured session summaries (topics, challenges, decisions, lessons learned, etc)**.
+ClaudeCast pulls your **Claude Code session logs**, strips personal/sensitive data locally (according to **configurable redaction rules**), then uploads session extracts to Google NotebookLM (NLM) to create **structured session summaries (topics, challenges, decisions, lessons learned, etc)**. ClaudeCast now also supports the ingestion of Pi session logs, by pointing to a local file or folder.
 
 Because you can't even be bothered to read these, ClaudeCast also **generates a hilarious 25 minute deep-dive podcast episode** via NLM, roasting (or praising - change the prompt file to taste) the desasters you and your clanker created/prevented in the last days. Includes automated local audio post-processing (intro/outro music & podcast title announcement). 
 
@@ -18,7 +18,7 @@ Listen to the premiere episode here on Youtube (click image):
 
 ## How it works
 
-1. **Extract** — reads raw Claude Code session files from `~/.claude/`
+1. **Extract** — reads raw Claude Code session files from `~/.claude/` (and Pi sessions from a provided path)
 2. **Redact** — strips personal data using configurable rules (configure to taste or let Claude make suggestions based on your actual logs)
 3. **Summarize** — uploads session content to NotebookLM (your account), queries for per-project summaries (apapt prompt text to taste)
 4. **Podcast** — NotebookLM generates a Deep Dive audio episode (apapt prompt text to taste)
