@@ -1,5 +1,6 @@
 import { createReadStream } from 'fs'
 import { createInterface } from 'readline'
+import { isPiFormat, normalizePiEntries } from './normalize-pi.js'
 
 export interface TextBlock {
   type: 'text'
@@ -57,7 +58,7 @@ export interface SessionEntry {
 }
 
 export async function parseJsonl(filePath: string): Promise<SessionEntry[]> {
-  const entries: SessionEntry[] = []
+  const raw: unknown[] = []
   const rl = createInterface({
     input: createReadStream(filePath, { encoding: 'utf-8' }),
     crlfDelay: Infinity,
@@ -67,10 +68,12 @@ export async function parseJsonl(filePath: string): Promise<SessionEntry[]> {
     const trimmed = line.trim()
     if (!trimmed) continue
     try {
-      entries.push(JSON.parse(trimmed) as SessionEntry)
+      raw.push(JSON.parse(trimmed))
     } catch {
       // skip malformed lines
     }
   }
-  return entries
+
+  if (isPiFormat(raw)) return normalizePiEntries(raw)
+  return raw as SessionEntry[]
 }

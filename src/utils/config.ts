@@ -9,6 +9,10 @@ export interface ProjectConfig {
   projectMappings: Record<string, string>
   claudeDataDir: string
   nlmNotebookPrefix: string
+  agentName: string
+  humanName: string
+  city: string
+  country: string
 }
 
 export function loadConfig(): ProjectConfig {
@@ -19,11 +23,21 @@ export function loadConfig(): ProjectConfig {
         ? `${process.env['USERPROFILE']}\\.claude`
         : `${process.env['HOME']}/.claude`,
       nlmNotebookPrefix: 'Dev Log',
+      agentName: 'Claude',
+      humanName: 'User',
+      city: 'Vienna',
+      country: 'Austria',
     }
     saveConfig(defaults)
     return defaults
   }
-  return JSON.parse(readFileSync(CONFIG_PATH, 'utf-8')) as ProjectConfig
+  const cfg = JSON.parse(readFileSync(CONFIG_PATH, 'utf-8')) as ProjectConfig
+  // Back-fill defaults for fields added after initial setup
+  if (!cfg.agentName) cfg.agentName = 'Claude'
+  if (!cfg.humanName) cfg.humanName = 'User'
+  if (!cfg.city) cfg.city = 'Vienna'
+  if (!cfg.country) cfg.country = 'Austria'
+  return cfg
 }
 
 export function saveConfig(config: ProjectConfig): void {

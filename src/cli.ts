@@ -8,6 +8,7 @@ import { viewLogs } from './commands/view.js'
 import { backfillCommand } from './commands/backfill.js'
 import { episodeCommand } from './commands/episode.js'
 import { publishCommand } from './commands/publish.js'
+import { ingestCommand } from './commands/ingest.js'
 
 const program = new Command()
 
@@ -109,6 +110,19 @@ program
     })
   })
 
+// ── ingest ────────────────────────────────────────────────────────────────────
+program
+  .command('ingest <path>')
+  .description('Ingest a PI agent log file or folder of log files → NLM summary → markdown log')
+  .option('--from <date>', 'Only include files on or after this date (ISO, e.g. 2026-04-01)')
+  .option('--to <date>', 'Only include files before this date (ISO, e.g. 2026-04-07)')
+  .option('--agent-name <name>', 'Name of the AI agent in transcripts (overrides config)')
+  .option('--human-name <name>', 'Name of the human developer in transcripts (overrides config)')
+  .option('--dry-run', 'Extract and show session info without sending to NLM', false)
+  .action(async (path: string, opts: { from?: string; to?: string; agentName?: string; humanName?: string; dryRun: boolean }) => {
+    await ingestCommand({ path, from: opts.from, to: opts.to, agentName: opts.agentName, humanName: opts.humanName, dryRun: opts.dryRun })
+  })
+
 // ── postprocess ───────────────────────────────────────────────────────────────
 program
   .command('postprocess <input> [output]')
@@ -129,8 +143,10 @@ program
   .description('Upload new episodes to Cloudflare R2 and regenerate the RSS feed')
   .option('--force', 'Re-upload all episodes, even already-published ones', false)
   .option('--dry-run', 'Show what would be uploaded without making changes', false)
-  .action(async (opts: { force: boolean; dryRun: boolean }) => {
-    await publishCommand({ force: opts.force, dryRun: opts.dryRun })
+  .option('--target <target>', 'Publish target: private (default) or public', 'private')
+  .action(async (opts: { force: boolean; dryRun: boolean; target: string }) => {
+    const target = opts.target === 'public' ? 'public' : 'private'
+    await publishCommand({ force: opts.force, dryRun: opts.dryRun, target })
   })
 
 program.parse(process.argv)

@@ -111,7 +111,7 @@ export async function episodeCommand(options: {
 
   // Stage 2: podcast
   console.log(`\nStage 2: Generating ClaudeCast Episode ${episodeNumber} podcast...`)
-  const stage2 = await runStage2(episodeNumber, padded, stage1Results, options.dryRun ?? false)
+  const stage2 = await runStage2(episodeNumber, padded, stage1Results, options.dryRun ?? false, config.agentName, config.humanName, config.city, config.country)
 
   // Update state
   const nowStr = new Date().toISOString()

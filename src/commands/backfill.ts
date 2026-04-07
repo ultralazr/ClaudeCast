@@ -124,6 +124,10 @@ export async function backfillCommand(options: { dryRun?: boolean; limit?: numbe
       episodePad(ep.number),
       stage1Results,
       options.dryRun ?? false,
+      config.agentName,
+      config.humanName,
+      config.city,
+      config.country,
     )
 
     // Save state

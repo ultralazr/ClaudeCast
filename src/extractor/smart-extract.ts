@@ -76,6 +76,12 @@ export interface ExtractOptions {
   windowStart?: Date
   /** Only include messages before this UTC timestamp (exclusive) */
   windowEnd?: Date
+  /** Skip redaction (use when the source has already been redacted externally) */
+  skipRedact?: boolean
+  /** Label for the AI agent in the transcript (default: "Claude") */
+  agentName?: string
+  /** Label for the human developer in the transcript (default: "User") */
+  humanName?: string
 }
 
 export async function extractSession(
@@ -87,6 +93,8 @@ export async function extractSession(
 
   const wsMs = options.windowStart?.getTime() ?? -Infinity
   const weMs = options.windowEnd?.getTime() ?? Infinity
+  const agentName = options.agentName ?? 'Claude'
+  const humanName = options.humanName ?? 'User'
 
   const lines: string[] = []
   const allTools = new Set<string>()
@@ -116,10 +124,10 @@ export async function extractSession(
 
     if (entry.type === 'user' && entry.message?.role === 'user') {
       const { text } = extractTextFromContent(entry.message.content)
-      if (text) lines.push(`**User:** ${text}`)
+      if (text) lines.push(`**${humanName}:** ${text}`)
     } else if (entry.type === 'assistant' && entry.message?.role === 'assistant') {
       const { text, tools, files, skills } = extractTextFromContent(entry.message.content)
-      if (text) lines.push(`**Claude:** ${text}`)
+      if (text) lines.push(`**${agentName}:** ${text}`)
       if (tools.length > 0) lines.push(`  *[Tools used: ${tools.join(', ')}]*`)
       tools.forEach(t => allTools.add(t))
       files.forEach(f => allFiles.add(f))
@@ -178,7 +186,7 @@ export async function extractSession(
     filesModified: [...allFiles],
     skillsUsed: [...allSkills],
     mcpsUsed,
-    conversationText: redact(metaHeader + lines.join('\n\n')),
+    conversationText: options.skipRedact ? metaHeader + lines.join('\n\n') : redact(metaHeader + lines.join('\n\n')),
     tokenUsage,
   }
 }

@@ -17,9 +17,17 @@ const NLM_SOURCE_HELPER = resolve(__dirname, '../../scripts/nlm_source_add.py')
 const NLM_QUERY_HELPER = resolve(__dirname, '../../scripts/nlm_query.py')
 
 const PROMPT_FILE = resolve(__dirname, '../../config/stage2-prompt.txt')
-const STAGE2_PROMPT = existsSync(PROMPT_FILE)
-  ? readFileSync(PROMPT_FILE, 'utf-8').trim()
-  : 'Summarize these developer sessions as a podcast episode.'
+
+function loadStage2Prompt(agentName: string, humanName: string, city: string, country: string): string {
+  const raw = existsSync(PROMPT_FILE)
+    ? readFileSync(PROMPT_FILE, 'utf-8').trim()
+    : 'Summarize these developer sessions as a podcast episode.'
+  return raw
+    .replace(/\{agentName\}/g, agentName)
+    .replace(/\{humanName\}/g, humanName)
+    .replace(/\{city\}/g, city)
+    .replace(/\{country\}/g, country)
+}
 
 interface ArtifactStatus { type?: string; status?: string; artifact_id?: string }
 
@@ -85,6 +93,10 @@ export async function runStage2(
   episodePadded: string,
   results: Stage1Result[],
   dryRun: boolean,
+  agentName = 'Claude',
+  humanName = 'User',
+  city = 'Vienna',
+  country = 'Austria',
 ): Promise<Stage2Result | null> {
   if (dryRun) {
     console.log(`  [dry-run] Would create podcast notebook "ClaudeCast - Episode ${episodeNumber}"`)
@@ -167,7 +179,7 @@ export async function runStage2(
   let audioCreated = false
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      await nlm('audio', 'create', notebookId, '--format', 'deep_dive', '--length', 'default', '--focus', STAGE2_PROMPT, '--confirm')
+      await nlm('audio', 'create', notebookId, '--format', 'deep_dive', '--length', 'default', '--focus', loadStage2Prompt(agentName, humanName, city, country), '--confirm')
       audioCreated = true
       break
     } catch (err) {
