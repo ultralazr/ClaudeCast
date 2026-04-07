@@ -3,9 +3,9 @@
  * overlays a talker track, converts to mono, and compresses to ~60% filesize.
  *
  * Timeline of final output:
- *   0s       Music intro starts (first 23s of neon-odyssey.wav)
+ *   0s       Music intro starts (first 29s of music)
  *   9s       Talker overlay starts (mixed on top of music, no fade)
- *   18s–23s  Crossfade: music fades out, NLM track fades in (5s fade)
+ *   20s–29s  Crossfade: music fades out, NLM track fades in (9s fade)
  *   23s–...  NLM track (pure)
  *   ...–4s   Outro crossfade: last 4s of NLM fades out into music outro
  *   outro    Remaining music outro plays out (10s outro total)
@@ -121,11 +121,17 @@ export async function postProcess(rawFile: string, outFile: string): Promise<voi
 
   console.log('  Post-processing audio...')
 
-  const [nlmDuration, musicDuration, inputBitrate] = await Promise.all([
+  const durations = await Promise.all([
     getDuration(rawFile),
     getDuration(musicFile),
     getBitrate(rawFile),
+    ...(talkerFile ? [getDuration(talkerFile)] : []),
   ])
+
+  const nlmDuration = durations[0]
+  const musicDuration = durations[1]
+  const inputBitrate = durations[2]
+  const talkerDuration = talkerFile ? durations[3] : 0
 
   console.log(`  NLM track: ${nlmDuration.toFixed(1)}s | Music: ${musicDuration.toFixed(1)}s | Input: ${Math.round(inputBitrate / 1000)}k`)
 
@@ -134,10 +140,14 @@ export async function postProcess(rawFile: string, outFile: string): Promise<voi
   console.log(`  Target bitrate: ${targetBitrate}k AAC mono (~60% of input)`)
 
   // Build filter graph — talker overlay is optional
+  const talkerEndTime = talkerFile ? 9 + talkerDuration : 0
+  const musicFadeStart = talkerEndTime > 0 ? talkerEndTime : -1
+  const musicFadeFilter = musicFadeStart > 0 ? `,afade=t=out:st=${musicFadeStart}:d=6` : ''
+
   const filterParts = [
-    `[1:a]atrim=0:23,asetpts=PTS-STARTPTS[music_intro]`,
+    `[1:a]atrim=0:29,asetpts=PTS-STARTPTS${musicFadeFilter}[music_intro]`,
     `[1:a]atrim=${outroMusicStart},asetpts=PTS-STARTPTS[music_outro]`,
-    `[music_intro][0:a]acrossfade=d=5:c1=tri:c2=nofade[intro_nlm]`,
+    `[music_intro][0:a]acrossfade=d=9:c1=tri:c2=nofade[intro_nlm]`,
     `[intro_nlm][music_outro]acrossfade=d=4:c1=tri:c2=tri[with_music]`,
   ]
 
