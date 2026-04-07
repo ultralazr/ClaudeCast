@@ -118,9 +118,10 @@ program
   .option('--to <date>', 'Only include files before this date (ISO, e.g. 2026-04-07)')
   .option('--agent-name <name>', 'Name of the AI agent in transcripts (overrides config)')
   .option('--human-name <name>', 'Name of the human developer in transcripts (overrides config)')
+  .option('--output-dir <path>', 'Write all summary .md files to this directory instead of the default logs structure')
   .option('--dry-run', 'Extract and show session info without sending to NLM', false)
-  .action(async (path: string, opts: { from?: string; to?: string; agentName?: string; humanName?: string; dryRun: boolean }) => {
-    await ingestCommand({ path, from: opts.from, to: opts.to, agentName: opts.agentName, humanName: opts.humanName, dryRun: opts.dryRun })
+  .action(async (path: string, opts: { from?: string; to?: string; agentName?: string; humanName?: string; outputDir?: string; dryRun: boolean }) => {
+    await ingestCommand({ path, from: opts.from, to: opts.to, agentName: opts.agentName, humanName: opts.humanName, outputDir: opts.outputDir, dryRun: opts.dryRun })
   })
 
 // ── postprocess ───────────────────────────────────────────────────────────────

@@ -39,13 +39,14 @@ export function writeLogEntry(
   newToolsList: string[],
   mcpsList: string[],
   skillsList: string[],
+  outputDir?: string,
 ): string {
-  const projectDir = join(LOGS_DIR, project)
-  ensureDir(projectDir)
+  const dir = outputDir ?? join(LOGS_DIR, project)
+  ensureDir(dir)
 
   const shortId = sessionId.slice(0, 8)
   const filename = `${date}_session-${shortId}.md`
-  const filePath = join(projectDir, filename)
+  const filePath = join(dir, filename)
 
   const toolsSection =
     newToolsList.length > 0 || mcpsList.length > 0 || skillsList.length > 0

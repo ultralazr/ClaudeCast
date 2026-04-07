@@ -110,7 +110,7 @@ export async function runStage2(
   const dd = String(now.getDate()).padStart(2, '0')
   const mm = String(now.getMonth() + 1).padStart(2, '0')
   const yyyy = now.getFullYear()
-  const projectPart = results.map(r => r.project).join('_')
+  const projectPart = [...new Set(results.map(r => r.project))].join('_')
   const podcastFile = join(episodeDir, `ClaudeCast_ep${episodePadded}_${dd}_${mm}_${yyyy}_${projectPart}.m4a`)
   const rawFile = podcastFile.replace(/\.m4a$/, '_raw.m4a')
 

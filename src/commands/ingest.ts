@@ -49,6 +49,7 @@ export async function ingestCommand(options: {
   dryRun?: boolean
   agentName?: string
   humanName?: string
+  outputDir?: string
 }): Promise<void> {
   const config = loadConfig()
   const processedState = loadProcessedSessions()
@@ -133,6 +134,7 @@ export async function ingestCommand(options: {
       newTools,
       extracted.mcpsUsed,
       extracted.skillsUsed,
+      options.outputDir,
     )
     console.log(`  Saved: ${logFile}\n`)
 
